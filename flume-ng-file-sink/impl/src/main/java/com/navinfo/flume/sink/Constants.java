@@ -22,12 +22,9 @@ public class Constants {
     public static final String PROPERTY_PREFIX = "kafka";
 
     /* Properties */
-    public static final String DEFAULT_TOPIC = "default-flume-topic";
-    public static final String PREPROCESSOR = "preprocessor";
+    public static final String DEFAULT_TOPIC = "default-topic";
     public static final String TOPIC = "topic";
     public static final String BODY = "body";
-
-	/* Properties */
 	public static final String DEFAULT_DIRECTORY = "";
 	public static final String DIRECTORY = "directory";
     

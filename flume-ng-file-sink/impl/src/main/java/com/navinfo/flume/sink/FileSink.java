@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 
-import com.navinfo.flume.sink.MessagePreprocessor;
 import com.navinfo.flume.sink.Constants;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
 
@@ -58,7 +57,7 @@ public class FileSink extends AbstractSink implements Configurable {
     private static final Logger logger = LoggerFactory.getLogger(FileSink.class);
     private Properties producerProps;
     private Producer<String, String> producer;
-    private MessagePreprocessor messagePreProcessor;
+
     private String topic;
     private String body;
     private Context context;
@@ -80,55 +79,42 @@ public class FileSink extends AbstractSink implements Configurable {
 
         try {
             transaction.begin();
-            
-            
-            if ( this.directory == null || this.directory.isEmpty() ) {
-            	transaction.commit();
-            	return result;
-            }
-            
+
             event = channel.take();
             
             if (event != null) {
-            	
-            	String eventBody = new String(event.getBody());
-                // if the metadata extractor is set, extract the topic and the key.
-                if (messagePreProcessor != null) {
-                    eventBody = messagePreProcessor.transformMessage(event, context);
-                    eventTopic = messagePreProcessor.extractTopic(event, context);
-                    eventKey = messagePreProcessor.extractKey(event, context);
-                }
-            	
-            	
-                byte[] eventData = event.getBody();
+                if ( this.directory != null && !this.directory.isEmpty() ) {
+                    byte[] eventData = event.getBody();
+                    eventHeader = event.getHeaders();
+                    
+                    if ( eventHeader != null && eventHeader.containsKey("basename") ) {
+                        fileName = eventHeader.get("basename");
+                    } 
+                    else {
+                        fileName = String.format("data%04d.jpg", ran.nextInt(10000));
+                    }
+
                 
-                eventHeader = event.getHeaders();
-                if ( eventHeader != null && eventHeader.containsKey("basename") ) {
-                	fileName = eventHeader.get("basename");
+                    File dir = new File(this.directory);    
+                 
+                    if  (dir.exists() && dir.isDirectory()) {
+                        this.demoFileWrite(directory + File.separator + fileName, eventData);
+                    }
+                }
+               
+                // create a message
+                KeyedMessage<String, String> data;
+                String eventBody = new String(event.getBody());
+                if (body != null && !body.isEmpty()) {
+                    data = new KeyedMessage<String, String>(topic, "", body);
+                    logger.debug(topic + ":" + body);
                 } 
                 else {
-                	
-                    fileName = String.format("data%04d.jpg", ran.nextInt(1000));
+                    data = new KeyedMessage<String, String>(topic, "", eventBody);
+                    logger.debug(topic + ":" + eventBody);
                 }
-
-                
-              File dir = new File(this.directory);    
-                 
-              if  (dir.exists() && dir.isDirectory()) {
-            	  this.demoFileWrite(directory + File.separator + fileName, eventData);
-            	  
-            	  // create a message
-                  KeyedMessage<String, String> data;
-                  if (body != null && !body.isEmpty()) {
-                	  data = new KeyedMessage<String, String>(topic, eventKey, body);
-              	  } 
-              	  else {
-              		data = new KeyedMessage<String, String>(eventTopic, eventKey, eventBody);
-              	  }
-                  // publish
-                  producer.send(data);
-              }
-
+                // publish
+                producer.send(data);
             } 
             else {
                 // No event found, request back-off semantics from the sink runner
@@ -190,53 +176,12 @@ public class FileSink extends AbstractSink implements Configurable {
             }
         }
 
-        // get the message Preprocessor if set
-        String preprocessorClassName = context.getString(Constants.PREPROCESSOR);
-        // if it's set create an instance using Java Reflection.
-        if (preprocessorClassName != null) {
-            try {
-                Class preprocessorClazz = Class.forName(preprocessorClassName.trim());
-                Object preprocessorObj = preprocessorClazz.newInstance();
-                if (preprocessorObj instanceof MessagePreprocessor) {
-                    messagePreProcessor = (MessagePreprocessor) preprocessorObj;
-                } else {
-                    String errorMsg = "Provided class for MessagePreprocessor does not implement " +
-                            "'com.thilinamb.flume.sink.MessagePreprocessor'";
-                    logger.error(errorMsg);
-                    throw new IllegalArgumentException(errorMsg);
-                }
-            } catch (ClassNotFoundException e) {
-                String errorMsg = "Error instantiating the MessagePreprocessor implementation.";
-                logger.error(errorMsg, e);
-                throw new IllegalArgumentException(errorMsg, e);
-            } catch (InstantiationException e) {
-                String errorMsg = "Error instantiating the MessagePreprocessor implementation.";
-                logger.error(errorMsg, e);
-                throw new IllegalArgumentException(errorMsg, e);
-            } catch (IllegalAccessException e) {
-                String errorMsg = "Error instantiating the MessagePreprocessor implementation.";
-                logger.error(errorMsg, e);
-                throw new IllegalArgumentException(errorMsg, e);
-            }
-        }
-
         // 如果配置了消息内容，则向Kafka传入配置的内容
-        body = context.getString(Constants.BODY, Constants.DEFAULT_TOPIC);
+        body = context.getString(Constants.BODY);
 
         topic = context.getString(Constants.TOPIC, Constants.DEFAULT_TOPIC);
         
         directory = context.getString(Constants.DIRECTORY, Constants.DEFAULT_DIRECTORY);
-
-        if (messagePreProcessor == null) {
-            // MessagePreprocessor is not set. So read the topic from the config.
-            topic = context.getString(Constants.TOPIC, Constants.DEFAULT_TOPIC);
-            if (topic.equals(Constants.DEFAULT_TOPIC)) {
-                logger.warn("The Properties 'metadata.extractor' or 'topic' is not set. Using the default topic name" +
-                        Constants.DEFAULT_TOPIC);
-            } else {
-                logger.info("Using the static topic: " + topic);
-            }
-        }
     }
     
     private synchronized void demoFileWrite(final String fileName, final byte[] contents) throws IOException

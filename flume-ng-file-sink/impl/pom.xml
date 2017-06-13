@@ -24,13 +24,13 @@ limitations under the License.
 
     <parent>
         <groupId>com.navinfo.flume</groupId>
-        <artifactId>flume-file-sink-parent</artifactId>
+        <artifactId>flume-file-kafka-sink-parent</artifactId>
         <version>0.1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>flume-file-sink-impl</artifactId>
-    <name>Flume-file-Sink Implementation</name>
+    <artifactId>flume-file-kafka-sink-impl</artifactId>
+    <name>Flume-File-Kafka-Sink Implementation</name>
     <packaging>jar</packaging>
 
     <build>

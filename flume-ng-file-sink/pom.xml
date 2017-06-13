@@ -21,7 +21,7 @@ limitations under the License.
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.navinfo.flume</groupId>
-    <artifactId>flume-file-sink-parent</artifactId>
+    <artifactId>flume-file-kafka-sink-parent</artifactId>
     <description>An Apache Flume Sink implementation to publish messages to a file.</description>
     <version>0.1.0</version>
     <name>Flume File Sink</name>
@@ -30,7 +30,7 @@ limitations under the License.
     <modules>
         <module>impl</module>    
         
-        <module>dist</module>
+        
     </modules>
 
     <build>
@@ -92,7 +92,7 @@ limitations under the License.
     </dependencies>
 
     <properties>
-        <flume-file-sink-version>${project.version}</flume-file-sink-version>
+        <flume-file--kafka-sink-version>${project.version}</flume-file--kafka-sink-version>
         <flume-version>1.7.0</flume-version>
         <kafka-version>0.8.1.1</kafka-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

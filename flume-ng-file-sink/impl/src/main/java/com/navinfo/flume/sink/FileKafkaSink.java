@@ -43,25 +43,17 @@ import java.util.Properties;
 import java.util.Random;
 
 /**
- * A Flume Sink that can publish messages to Kafka.
+ * A Flume-Kafka Sink that can save each event into individual file and publish message to Kafka.
  * This is a general implementation that can be used with any Flume agent and a channel.
- * This supports key and messages of type String.
- * Extension points are provided to for users to implement custom key and topic extraction
- * logic based on the message content as well as the Flume context.
- * Without implementing this extension point(MessagePreprocessor), it's possible to publish
- * messages based on a static topic. In this case messages will be published to a random
- * partition.
  */
-public class FileSink extends AbstractSink implements Configurable {
+public class FileKafkaSink extends AbstractSink implements Configurable {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileKafkaSink.class);
     private Properties producerProps;
     private Producer<String, String> producer;
 
     private String topic;
     private String body;
-    private Context context;
-    
     private Random ran = new Random();
     private String directory;
     
@@ -74,9 +66,6 @@ public class FileSink extends AbstractSink implements Configurable {
         Map<String, String> eventHeader = null;
         String fileName = null;
         
-        String eventTopic = topic;
-        String eventKey = null;
-
         try {
             transaction.begin();
 
@@ -154,9 +143,7 @@ public class FileSink extends AbstractSink implements Configurable {
     @Override
     public void configure(Context context) {
 		
-		this.context = context;
- 	
-        // read the properties for Kafka Producer
+		// read the properties for Kafka Producer
         // any property that has the prefix "kafka" in the key will be considered as a property that is passed when
         // instantiating the producer.
         // For example, kafka.metadata.broker.list = localhost:9092 is a property that is processed here, but not

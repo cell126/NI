@@ -21,9 +21,9 @@ if __name__ == '__main__':
     rsakey = RSA.importKey(key)
     cipher = Cipher_pkcs1_v1_5.new(rsakey)
     
-    encodedFile = open('encoded_output.txt', 'r')
+    encodedFile = open('encoded_output_0719.txt', 'r')
     
-    decodedFile = open('decoded_output.txt', 'w')
+    decodedFile = open('decoded_output_0719.txt', 'w')
     
     startTime = time.time()
     beginTime = startTime

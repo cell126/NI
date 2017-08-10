@@ -12,9 +12,9 @@ import time
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-def decode(filename, keyfilename):
-    print filename, keyfilename
-    #return
+def decode(path, file, keyfilename):
+    filename = os.path.join(path, file)
+
     random_generator = Random.new().read
 
     with open(keyfilename) as f:
@@ -23,9 +23,11 @@ def decode(filename, keyfilename):
     rsakey = RSA.importKey(key)
     cipher = Cipher_pkcs1_v1_5.new(rsakey)
 
-    print "Decoding " + filename
+    print "Decoding " + filename + "  use " + keyfilename
+
     encodedFile = open(filename, 'r')
-    decodedFile = open(filename + ".decoded", 'w')
+  
+    decodedFile = open("E:\\Data\\output\\decoded_" + file, 'w')
 
     startTime = time.time()
     beginTime = startTime
@@ -53,9 +55,8 @@ def decode(filename, keyfilename):
 
 if __name__ == '__main__':
 
-    if(len(sys.argv) == 3):
-        decode(sys.argv[1], sys.argv[2])
-
+    if(len(sys.argv) == 4):
+        decode(sys.argv[1], sys.argv[2], sys.argv[3])
 
     '''
     rootdir = "E:\\Data\\BMW"

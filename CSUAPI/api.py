@@ -13,9 +13,9 @@ sys.setdefaultencoding('utf-8')
 app = Flask(__name__)
 api = Api(app)
 
-api.add_resource(DataSet, '/CSUAPI/v1.0/DataSet')
-api.add_resource(DataSetList, '/CSUAPI/v1.0/DataSet/List')
-api.add_resource(DataPackage, '/CSUAPI/v1.0/DataSet/Packages/<string:name>')
+api.add_resource(DataSet, '/csuapi/v1.0/dataset')
+api.add_resource(DataSetList, '/csuapi/v1.0/dataset/list')
+api.add_resource(DataPackage, '/csuapi/v1.0/dataset/packages/<string:name>')
 
 
 if __name__ == '__main__':

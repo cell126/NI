@@ -44,7 +44,7 @@ class DataSetDAO():
                     createdTime = os.path.getctime(fullpath)
                     modifiedTime = os.path.getmtime(fullpath)
                     dirInfo[dirname] = {"name": dirname, "size": size, "count": count}
-                    dirs.append({"name": dirname, "size": round(size/float(1024 * 1024), 1), "count": count, "createdTime": createdTime, "modifiedTime": modifiedTime})
+                    dirs.append({"name": dirname, "size": round(size/float(1024 * 1024), 1), "fileCount": count, "createdAt": createdTime, "updatedAt": modifiedTime})
         return dirs, dirInfo
 
 

@@ -3,6 +3,7 @@
 import sys
 import os.path
 import shutil
+from distutils.dir_util import copy_tree
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -58,9 +59,6 @@ class DataSetDAO():
             if (not os.path.exists(os.path.join(self.srcRootDir, srcName))):
                 raise IOError("The source of %s is not existed." % srcName)
 
-            if(not os.path.exists(os.path.join(self.desRootDir, desName))):
-                shutil.copytree(os.path.join(self.srcRootDir, srcName), os.path.join(self.desRootDir, desName))
-                return True
-            else:
-                raise IOError("The %s has been existed." % desName)
+            copy_tree(os.path.join(self.srcRootDir, srcName), os.path.join(self.desRootDir, desName))
+            return True
         return False
